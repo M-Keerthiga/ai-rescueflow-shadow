@@ -1,0 +1,74 @@
+[
+  {
+    "id": "HOSP-SF-01",
+    "name": "Metro General & Trauma Hospital",
+    "latitude": 37.7558,
+    "longitude": -122.4048,
+    "phone": "+1-555-019-4821",
+    "email": "trauma.dispatch@metrogeneral.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "AVAILABLE",
+    "priority": "LEVEL_1_TRAUMA"
+  },
+  {
+    "id": "HOSP-SF-02",
+    "name": "St. Mary's Regional Medical Center",
+    "latitude": 37.7739,
+    "longitude": -122.4542,
+    "phone": "+1-555-019-4822",
+    "email": "emergency@stmarysregional.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "AVAILABLE",
+    "priority": "LEVEL_2_TRAUMA"
+  },
+  {
+    "id": "HOSP-SF-03",
+    "name": "Mission Bay Emergency Care Center",
+    "latitude": 37.7681,
+    "longitude": -122.3912,
+    "phone": "+1-555-019-4823",
+    "email": "er.intake@missionbayhealth.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "CRITICAL_BEDS_READY",
+    "priority": "LEVEL_1_TRAUMA"
+  },
+  {
+    "id": "HOSP-SF-04",
+    "name": "Presidio Heights Medical Clinic",
+    "latitude": 37.7892,
+    "longitude": -122.4468,
+    "phone": "+1-555-019-4824",
+    "email": "urgentcare@presidiohealth.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "AVAILABLE",
+    "priority": "URGENT_CARE"
+  },
+  {
+    "id": "HOSP-OAK-01",
+    "name": "East Bay Level 1 Trauma Center",
+    "latitude": 37.8205,
+    "longitude": -122.2618,
+    "phone": "+1-555-019-4825",
+    "email": "trauma@eastbayhealth.demo",
+    "city": "Oakland",
+    "state": "CA",
+    "availability": "AVAILABLE",
+    "priority": "LEVEL_1_TRAUMA"
+  },
+  {
+    "id": "HOSP-SJ-01",
+    "name": "Silicon Valley Regional Emergency Hospital",
+    "latitude": 37.3621,
+    "longitude": -121.8624,
+    "phone": "+1-555-019-4826",
+    "email": "er.dispatch@svregional.demo",
+    "city": "San Jose",
+    "state": "CA",
+    "availability": "AVAILABLE",
+    "priority": "LEVEL_1_TRAUMA"
+  }
+]

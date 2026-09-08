@@ -1,0 +1,22 @@
+dataset:
+  raw_dir: "ml/datasets/raw"
+  processed_dir: "ml/datasets/processed"
+  annotations_dir: "ml/datasets/annotations"
+  format: "yolo" # yolo, coco, kitti
+  val_split: 0.2
+
+model:
+  name: "traffic_detector"
+  input_size: [640, 640]
+  classes:
+    0: "car"
+    1: "bus"
+    2: "truck"
+    3: "motorcycle"
+
+training:
+  epochs: 25
+  batch_size: 16
+  learning_rate: 0.001
+  export_onnx: true
+  output_onnx_path: "ml/models/trained/traffic_detector.onnx"

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "POL-SF-01",
+    "name": "Metropolitan Central Police Station",
+    "latitude": 37.7995,
+    "longitude": -122.4098,
+    "phone": "+1-555-019-9111",
+    "email": "central.dispatch@metropolice.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "DISPATCH_READY",
+    "priority": "HIGH_PRIORITY_INTERCEPTOR"
+  },
+  {
+    "id": "POL-SF-02",
+    "name": "Mission District Police Precinct",
+    "latitude": 37.7628,
+    "longitude": -122.4219,
+    "phone": "+1-555-019-9112",
+    "email": "mission.precinct@metropolice.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "PATROL_ACTIVE",
+    "priority": "RAPID_RESPONSE"
+  },
+  {
+    "id": "POL-SF-03",
+    "name": "Southern Station Traffic & Transit Division",
+    "latitude": 37.7788,
+    "longitude": -122.3985,
+    "phone": "+1-555-019-9113",
+    "email": "traffic.division@metropolice.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "DISPATCH_READY",
+    "priority": "HIGHWAY_PATROL"
+  },
+  {
+    "id": "POL-SF-04",
+    "name": "Northern Police Station & Highway Unit",
+    "latitude": 37.7801,
+    "longitude": -122.4322,
+    "phone": "+1-555-019-9114",
+    "email": "northern.station@metropolice.demo",
+    "city": "San Francisco",
+    "state": "CA",
+    "availability": "PATROL_ACTIVE",
+    "priority": "RAPID_RESPONSE"
+  },
+  {
+    "id": "POL-OAK-01",
+    "name": "Oakland Central Police Headquarters",
+    "latitude": 37.8044,
+    "longitude": -122.2712,
+    "phone": "+1-555-019-9115",
+    "email": "oakland.dispatch@metropolice.demo",
+    "city": "Oakland",
+    "state": "CA",
+    "availability": "DISPATCH_READY",
+    "priority": "HIGH_PRIORITY_INTERCEPTOR"
+  },
+  {
+    "id": "POL-SJ-01",
+    "name": "San Jose Police Department - Metro Division",
+    "latitude": 37.3382,
+    "longitude": -121.8863,
+    "phone": "+1-555-019-9116",
+    "email": "sj.patrol@metropolice.demo",
+    "city": "San Jose",
+    "state": "CA",
+    "availability": "DISPATCH_READY",
+    "priority": "RAPID_RESPONSE"
+  }
+]

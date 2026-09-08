@@ -1,0 +1,26 @@
+[
+  {
+    "id": "FAM-001",
+    "name": "Sarah Jenkins",
+    "relationship": "Spouse",
+    "phone": "+1-555-019-3321",
+    "email": "sarah.jenkins@familycontact.demo",
+    "priority": 1
+  },
+  {
+    "id": "FAM-002",
+    "name": "David Jenkins Sr.",
+    "relationship": "Parent",
+    "phone": "+1-555-019-3322",
+    "email": "david.jenkins@familycontact.demo",
+    "priority": 2
+  },
+  {
+    "id": "FAM-003",
+    "name": "Emily Jenkins",
+    "relationship": "Sibling",
+    "phone": "+1-555-019-3323",
+    "email": "emily.jenkins@familycontact.demo",
+    "priority": 3
+  }
+]

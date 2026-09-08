@@ -1,0 +1,15 @@
+{
+  "model": "traffic_detector",
+  "dataset": "bdd100k_kitti_traffic",
+  "classes": [
+    "car",
+    "bus",
+    "truck",
+    "motorcycle"
+  ],
+  "format": "ONNX",
+  "trained": false,
+  "status": "PRETRAINED_MODEL",
+  "version": "1.0",
+  "lastUpdated": "2026-09-04T12:00:00Z"
+}
