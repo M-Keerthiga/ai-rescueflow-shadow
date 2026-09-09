@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide scrollbar for sidebar */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes camera-scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes camera-flicker {
+  0%, 100% { opacity: 0.12; }
+  48% { opacity: 0.08; }
+  50% { opacity: 0.2; }
+  52% { opacity: 0.1; }
+}
+
+.camera-scanline {
+  animation: camera-scan 4s linear infinite;
+}
+
+.camera-noise {
+  animation: camera-flicker 2.8s steps(2, end) infinite;
+}
+
+@keyframes traffic-left-to-right {
+  from { transform: translateX(-30%); }
+  to { transform: translateX(430%); }
+}
+
+@keyframes traffic-right-to-left {
+  from { transform: translateX(420%); }
+  to { transform: translateX(-35%); }
+}
+
+.traffic-car-forward {
+  animation: traffic-left-to-right 7s linear infinite;
+}
+
+.traffic-car-forward-slow {
+  animation: traffic-left-to-right 11s linear infinite;
+}
+
+.traffic-car-reverse {
+  animation: traffic-right-to-left 9s linear infinite;
+}
+
+.traffic-car-reverse-slow {
+  animation: traffic-right-to-left 13s linear infinite;
+}
+
+.traffic-vehicle {
+  position: absolute;
+  height: 9px;
+  width: 32px;
+  border-radius: 3px 4px 3px 3px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.65);
+}
+
+.traffic-vehicle::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: -4px;
+  width: 14px;
+  height: 6px;
+  border-radius: 4px 4px 1px 1px;
+  background: rgba(35, 48, 60, 0.95);
+  border: 1px solid rgba(220, 240, 255, 0.45);
+}
+
+.traffic-vehicle::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  bottom: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #080b10;
+  box-shadow: 19px 0 #080b10;
+}
+
+.traffic-vehicle-forward {
+  animation: traffic-left-to-right 7s linear infinite;
+}
+
+.traffic-vehicle-reverse {
+  animation: traffic-right-to-left 9s linear infinite;
+}
+
+.traffic-vehicle-forward.traffic-car-forward-slow {
+  animation-duration: 11s;
+}
+
+.traffic-road-surface {
+  background: linear-gradient(168deg, #48515a 0%, #202a31 38%, #080d12 100%);
+  clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+}
+
+.highway-road-edge {
+  background: repeating-linear-gradient(90deg, #f7d66b 0 18px, transparent 18px 34px);
+}
+
+.highway-lane-line {
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0 13px, transparent 13px 31px);
+}
+
+/* Custom scrollbar for main content */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0f1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
