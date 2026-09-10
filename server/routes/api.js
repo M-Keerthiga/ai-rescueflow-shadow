@@ -2,66 +2,11 @@ import express from 'express';
 import { calculateRisk } from '../services/riskEngine.js';
 import { analyzeIncident } from '../services/rescueEngine.js';
 import { dbAll, dbGet, dbRun } from '../database.js';
-import { masterDemoController } from '../services/masterDemoController.js';
 import { emergencyResponseOrchestrator } from '../services/emergencyResponseOrchestrator.js';
 import { deduplicationService } from '../services/deduplicationService.js';
 import { notificationEngine } from '../services/notificationEngine.js';
 
 const router = express.Router();
-
-// =========================================================================
-// MASTER DEMO & 46-TEST VERIFICATION ENDPOINTS
-// =========================================================================
-router.post('/master-demo/start', (req, res) => {
-  res.json(masterDemoController.startDemo());
-});
-
-router.post('/master-demo/pause', (req, res) => {
-  res.json(masterDemoController.pauseDemo());
-});
-
-router.post('/master-demo/resume', (req, res) => {
-  res.json(masterDemoController.resumeDemo());
-});
-
-router.post('/master-demo/restart', (req, res) => {
-  res.json(masterDemoController.restartDemo());
-});
-
-router.post('/master-demo/stop', (req, res) => {
-  res.json(masterDemoController.stopDemo());
-});
-
-router.post('/master-demo/speed', (req, res) => {
-  const { speed } = req.body || {};
-  res.json(masterDemoController.setPlaybackSpeed(speed));
-});
-
-router.post('/master-demo/run-scenario', (req, res) => {
-  const { mode, severity, options } = req.body || {};
-  res.json(masterDemoController.runScenario(mode, severity, options));
-});
-
-router.post('/master-demo/run-showcase', (req, res) => {
-  res.json(masterDemoController.runShowcase());
-});
-
-router.get('/master-demo/metrics', (req, res) => {
-  res.json({
-    metrics: masterDemoController.metrics,
-    simulationDisclaimer: 'SIMULATION — NO REAL EMERGENCY SERVICES CONTACTED'
-  });
-});
-
-router.get('/master-demo/status', (req, res) => {
-  res.json(masterDemoController.getStatusPayload());
-});
-
-router.get('/master-demo/evidence/:testId', (req, res) => {
-  const evidence = masterDemoController.getTestEvidence(req.params.testId);
-  if (!evidence) return res.status(404).json({ error: 'Test evidence not found' });
-  res.json(evidence);
-});
 
 // =========================================================================
 // VISION SERVICE & RISK ENGINE ENDPOINTS

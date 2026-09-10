@@ -110,7 +110,7 @@ export default function IntersectionCanvas() {
         ctx.fillText(`⚠️ CONFLICT ZONE (${riskResult.predictedCollisionRisk}%)`, centerX - 55, centerY - 45);
       }
 
-      // 5. Draw Vehicle A (College Bus)
+      // 5. Draw Vehicle A
       ctx.fillStyle = '#f59e0b'; // Amber Bus
       ctx.shadowColor = '#f59e0b';
       ctx.shadowBlur = 10;
@@ -137,7 +137,7 @@ export default function IntersectionCanvas() {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // 6. Draw Vehicle B (Ola Car)
+      // 6. Draw Vehicle B
       ctx.fillStyle = '#06b6d4'; // Cyan Car
       ctx.shadowColor = '#06b6d4';
       ctx.shadowBlur = 8;
@@ -174,8 +174,8 @@ export default function IntersectionCanvas() {
       <canvas ref={canvasRef} width={580} height={380} className="w-full h-auto block" />
 
       <div className="p-3 bg-navy-900 border-t border-slate-800 text-xs flex justify-between text-slate-400 font-mono">
-        <div>VEHICLE A: College Bus (42 km/h, 38m)</div>
-        <div>VEHICLE B: Ola Car (8 km/h, 22m)</div>
+        <div>VEHICLE A: College Bus ({vehicleA.speed} km/h, {vehicleA.distance}m)</div>
+        <div>VEHICLE B: Ola Car ({vehicleB.speed} km/h, {vehicleB.distance}m)</div>
       </div>
     </div>
   );

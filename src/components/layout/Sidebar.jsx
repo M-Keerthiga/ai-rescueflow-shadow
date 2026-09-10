@@ -5,14 +5,11 @@ import {
   Eye,
   Sliders,
   AlertOctagon,
-  Ambulance,
-  FileText,
   BarChart3,
   Settings,
   ChevronRight,
-  PlayCircle,
-  FlaskConical,
-  Camera
+  Camera,
+  Shield
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -21,7 +18,6 @@ export default function Sidebar() {
       title: 'OPERATIONAL COMMAND',
       items: [
         { path: '/', label: 'Command Center', icon: LayoutDashboard },
-        { path: '/master-demo', label: 'Master Demo Video', icon: PlayCircle }
       ]
     },
     {
@@ -35,18 +31,12 @@ export default function Sidebar() {
       title: 'AI RESCUEFLOW (POST-ACCIDENT)',
       items: [
         { path: '/rescue/analysis', label: 'Incident Analysis', icon: AlertOctagon },
-        { path: '/rescue/planner', label: 'Response Planner', icon: Ambulance },
-        { path: '/rescue/report', label: 'Incident Report', icon: FileText }
+        { path: '/rescue/history', label: 'Reported Incidents History', icon: AlertOctagon },
+        { path: '/police', label: 'Police Dashboard', icon: Shield },
+        { path: '/analytics', label: 'Analytics & Heatmaps', icon: BarChart3 }
       ]
     },
-    {
-      title: 'INTELLIGENCE & VERIFICATION',
-      items: [
-        { path: '/analytics', label: 'Analytics & Heatmaps', icon: BarChart3 },
-        { path: '/master-demo', label: 'Test Lab (46 Tests)', icon: FlaskConical },
-        { path: '/settings', label: 'Settings', icon: Settings }
-      ]
-    }
+    { title: 'SETTINGS', items: [{ path: '/settings', label: 'Settings', icon: Settings }] }
   ];
 
   return (
@@ -92,11 +82,11 @@ export default function Sidebar() {
             <span>HARNESS STATUS</span>
             <span className="text-emerald-400 flex items-center gap-1 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-              46 TESTS ACTIVE
+              OPERATIONAL
             </span>
           </div>
           <p className="text-[10px] text-slate-500">
-            Alert Policy & State Machine assertion verification harness.
+            AI RescueFlow services and incident monitoring.
           </p>
         </div>
       </div>

@@ -3,8 +3,7 @@ import { Eye, Navigation, ShieldAlert } from 'lucide-react';
 import { useApp } from '../../context/AppContext.jsx';
 
 export default function TrackingPanel() {
-  const { vehicleA, vehicleB, riskResult } = useApp();
-
+  const { vehicleA, vehicleB, riskResult, selectedClipData } = useApp();
   const ttc = riskResult?.estimatedTTC || 1.8;
 
   return (
@@ -32,22 +31,8 @@ export default function TrackingPanel() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-slate-200">
-            <tr>
-              <td className="py-2 font-bold text-amber-400">{vehicleA?.type || 'BUS #7'}</td>
-              <td>heavy_bus</td>
-              <td className="font-bold">{vehicleA?.speed ?? 42} km/h</td>
-              <td>{vehicleA?.distance ?? 38} m</td>
-              <td className="text-amber-400 font-bold">{ttc} s</td>
-              <td><span className="text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">STOPPING DEFICIT</span></td>
-            </tr>
-            <tr>
-              <td className="py-2 font-bold text-cyan-400">{vehicleB?.type || 'CAR #12'}</td>
-              <td>passenger_car</td>
-              <td className="font-bold">{vehicleB?.speed ?? 8} km/h</td>
-              <td>{vehicleB?.distance ?? 22} m</td>
-              <td className="text-cyan-400 font-bold">{ttc} s</td>
-              <td><span className="text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">CROSSING PATH</span></td>
-            </tr>
+            <tr><td className="py-2 font-bold text-amber-400">{vehicleA?.type || 'BUS #7'}</td><td>heavy_bus</td><td className="font-bold">{vehicleA?.speed ?? 42} km/h</td><td>{vehicleA?.distance ?? 38} m</td><td className="text-amber-400 font-bold">{ttc} s</td><td><span className="text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">STOPPING DEFICIT</span></td></tr>
+            <tr><td className="py-2 font-bold text-cyan-400">{vehicleB?.type || 'CAR #12'}</td><td>passenger_car</td><td className="font-bold">{vehicleB?.speed ?? 8} km/h</td><td>{vehicleB?.distance ?? 22} m</td><td className="text-cyan-400 font-bold">{ttc} s</td><td><span className="text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">CROSSING PATH</span></td></tr>
           </tbody>
         </table>
       </div>

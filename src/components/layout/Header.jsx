@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Shield, Play, Volume2, VolumeX, Activity, Cpu, ShieldCheck } from 'lucide-react';
+import React from 'react';
+import { Shield, Volume2, VolumeX, Activity } from 'lucide-react';
 import { useApp } from '../../context/AppContext.jsx';
 import DetectionStatus from '../vision/DetectionStatus.jsx';
 
 export default function Header() {
-  const { riskResult, soundEnabled, setSoundEnabled, runDemoMode, isDemoRunning, demoStep } = useApp();
-  const [selectedPath, setSelectedPath] = useState('collision');
-  const navigate = useNavigate();
+  const { riskResult, soundEnabled, setSoundEnabled } = useApp();
 
   const getRiskColor = (cat) => {
     switch (cat) {
@@ -60,30 +57,6 @@ export default function Header() {
           {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </button>
 
-        {/* Demo Path Selector */}
-        <select
-          value={selectedPath}
-          onChange={(e) => setSelectedPath(e.target.value)}
-          disabled={isDemoRunning}
-          className="bg-slate-950 border border-slate-800 text-slate-300 text-xs font-mono rounded-lg px-2 py-1.5"
-        >
-          <option value="collision">Demo Path: Collision ➔ RescueFlow</option>
-          <option value="prevention">Demo Path: Driver Response ➔ Avoided</option>
-        </select>
-
-        {/* Demo Mode Trigger Button */}
-        <button
-          onClick={() => runDemoMode(selectedPath, navigate)}
-          disabled={isDemoRunning}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 border shadow-sm transition-all ${
-            isDemoRunning
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 cursor-wait animate-pulse'
-              : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white border-cyan-400/40 shadow-cyan-900/30'
-          }`}
-        >
-          <Play className="w-3.5 h-3.5 fill-current" />
-          <span>{isDemoRunning ? `DEMO RUNNING (${demoStep}/6)` : 'START DEMO MODE'}</span>
-        </button>
       </div>
     </header>
   );

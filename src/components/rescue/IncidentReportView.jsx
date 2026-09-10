@@ -137,6 +137,8 @@ export default function IncidentReportView({ incident }) {
     window.print();
   };
 
+  const isPrevention = Boolean(incident.isPrevention || incident.status === 'PREVENTED' || incident.severityLevel === 'SAFE');
+
   return (
     <div className="bg-navy-900 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl font-mono text-xs print:bg-white print:text-black print:p-2 print:border-none print:shadow-none">
       {/* Permanent Simulation Disclaimer Banner */}
@@ -148,7 +150,7 @@ export default function IncidentReportView({ incident }) {
           </span>
         </div>
         <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30 print:text-black">
-          LEGAL AUDIT SIMULATION RECORD
+          {isPrevention ? 'PREVENTION AUDIT SIMULATION RECORD' : 'LEGAL AUDIT SIMULATION RECORD'}
         </span>
       </div>
 
@@ -160,7 +162,9 @@ export default function IncidentReportView({ incident }) {
           </div>
           <div>
             <h2 className="font-bold text-slate-100 text-base sm:text-lg tracking-wide print:text-black">
-              BLACKBOX INCIDENT AUDIT REPORT — #{incidentId}
+              {isPrevention
+                ? `PREVENTION AUDIT REPORT — #${incidentId}`
+                : `BLACKBOX INCIDENT AUDIT REPORT — #${incidentId}`}
             </h2>
             <p className="text-xs text-slate-400 print:text-gray-600">
               Generated: {timestamp} | System: AI RESCUEFLOW SHADOW
@@ -309,11 +313,9 @@ export default function IncidentReportView({ incident }) {
           <span>LEGAL & INSURANCE TELEMETRY RECONSTRUCTION</span>
         </div>
         <p className="text-slate-300 leading-relaxed print:text-gray-800">
-          Reconstruction confirms a side-impact collision at an uncontrolled/yellow-signal urban intersection.
-          College Bus (Vehicle A) approached at 42 km/h under wet road conditions requiring 41.2m stopping distance.
-          Ola Car (Vehicle B) proceeded at 8 km/h across the bus approach vector.
-          Deterministic AI Shadow calculated risk at 86% (CRITICAL) and broadcast dual driver alerts 1.8 seconds prior to impact.
-          Automatic RescueFlow orchestrated multi-channel dispatch across 3 agencies and 3 family recipients under Highest Priority response.
+          {isPrevention
+            ? `Telemetry audit confirms safe headway clearance maintained at corridor intersection. Vehicle A approached at ${vehA.speed || 25} km/h with safe stopping distance buffer. Vehicle B moved at ${vehB.speed || 18} km/h along crossing approach. Proactive AI Shadow calculated nominal collision risk (${severityScore}%) and confirmed zero conflict window. Incident prevented; safety audit persisted into Reported Incidents History.`
+            : `Reconstruction confirms a side-impact collision at an uncontrolled/yellow-signal urban intersection. College Bus (Vehicle A) approached at ${vehA.speed || 42} km/h requiring high stopping distance. Ola Car (Vehicle B) proceeded at ${vehB.speed || 8} km/h across the bus approach vector. Deterministic AI Shadow calculated risk at ${severityScore}% and broadcast dual driver alerts. Automatic RescueFlow orchestrated multi-channel dispatch across primary emergency agencies.`}
         </p>
       </div>
     </div>
