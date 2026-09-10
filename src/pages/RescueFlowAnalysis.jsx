@@ -43,7 +43,7 @@ export default function RescueFlowAnalysis() {
         {isCollision && activeIncident?.reportReady && (
           <button
             id="btn-go-to-police-dashboard"
-            onClick={() => navigate('/police')}
+            onClick={() => navigate('/police-dashboard')}
             className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-mono text-xs font-bold inline-flex items-center gap-2 shadow-lg shadow-indigo-950/50 transition-all border border-indigo-400/40 animate-pulse"
           >
             <Shield className="w-4 h-4" />

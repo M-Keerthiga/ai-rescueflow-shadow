@@ -1,7 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { calculateRisk } from '../../server/services/riskEngine.js';
 import { soundManager } from '../components/common/AudioAlertPlayer.js';
 import { INTERNAL_VIDEOS } from '../data/videoLibrary.js';
+import {
+  selectNearestSuitableHospital,
+  createAmbulanceDispatchRequest,
+  getHospitalsForLocation
+} from '../services/hospitalService.js';
 
 const AppContext = createContext();
 
@@ -32,8 +37,24 @@ export function AppProvider({ children }) {
   const [alertsList, setAlertsList] = useState([]);
   const [analyticsData, setAnalyticsData] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(false);
-
   const [liveVideoElement, setLiveVideoElement] = useState(null);
+
+  // Multi-Agency Workflow States (Police, Hospital, Live Ambulance)
+  const [policeStatus, setPoliceStatus] = useState('NEW_INCIDENT');
+  const [hospitalStatus, setHospitalStatus] = useState('IDLE');
+  const [assignedHospital, setAssignedHospital] = useState(null);
+  const [assignedAmbulance, setAssignedAmbulance] = useState(null);
+  const [ambulanceTracking, setAmbulanceTracking] = useState({
+    status: 'STANDBY',
+    progressPercent: 0,
+    speedKmH: 0,
+    etaMinutes: 0,
+    distanceRemainingKm: 0,
+    currentLocation: 'Hospital Emergency Bay',
+    currentWaypointIndex: 0
+  });
+
+  const trackingTimerRef = useRef(null);
 
   // Check Vision API Status on startup
   useEffect(() => {
@@ -112,14 +133,27 @@ export function AppProvider({ children }) {
     refreshData();
   }, [refreshData]);
 
+  // Clean up tracking timer on unmount
+  useEffect(() => {
+    return () => {
+      if (trackingTimerRef.current) clearInterval(trackingTimerRef.current);
+    };
+  }, []);
+
   // Record Collision Incident via existing Backend API
   const triggerCollisionSimulation = async (customTelemetry) => {
+    const loc = selectedClipData?.location || 'Chennai Outer Ring Road';
+    const initialHospital = selectNearestSuitableHospital(loc);
+
     const payload = customTelemetry || {
       vehicleA,
       vehicleB,
       environment,
-      riskAtCollision: riskResult?.predictedCollisionRisk || 92
+      riskAtCollision: riskResult?.predictedCollisionRisk || 92,
+      location: loc
     };
+
+    let enriched = null;
 
     try {
       const res = await fetch('/api/incidents/create', {
@@ -130,56 +164,76 @@ export function AppProvider({ children }) {
 
       if (res.ok) {
         const incident = await res.json();
-        const enriched = {
+        enriched = {
           ...incident,
+          id: incident.incidentId || incident.id,
+          location: loc,
           isCollision: true,
           isPrevention: false,
-          reportReady: true
+          reportReady: true,
+          selectedHospital: initialHospital
         };
-        setActiveIncident(enriched);
-        setIncidentsList((prev) => [enriched, ...prev]);
-        refreshData();
-        return enriched;
       }
     } catch (e) {
       console.error('Error recording collision incident:', e);
     }
 
-    // Deterministic fallback if API fails
-    const fallbackIncident = {
-      id: `INC-${Date.now().toString().slice(-6)}`,
-      incidentId: `INC-${Date.now().toString().slice(-6)}`,
-      timestamp: new Date().toISOString(),
-      status: 'ACTIVE_RESPONSE',
-      isCollision: true,
-      isPrevention: false,
-      reportReady: true,
-      severityLevel: 'CRITICAL',
-      severityScore: payload.riskAtCollision || 88,
-      severity: { level: 'CRITICAL', score: payload.riskAtCollision || 88, description: 'Critical collision conflict.' },
-      impactSpeedKmH: 48,
-      gForceB: 14.2,
-      vehicleA: payload.vehicleA,
-      vehicleB: payload.vehicleB,
-      telemetry: payload,
-      dispatches: [
-        { unitId: 'EMS-102', agency: 'Metro Level 1 Trauma Center', type: 'Advanced Life Support Ambulance', status: 'DISPATCHED', etaMinutes: 4 },
-        { unitId: 'FIRE-04', agency: 'City Fire & Heavy Rescue Dept', type: 'Heavy Extrication Fire Tender', status: 'DISPATCHED', etaMinutes: 5 },
-        { unitId: 'PATROL-P8', agency: 'Metropolitan Traffic Command', type: 'Highway Patrol Interceptor', status: 'DISPATCHED', etaMinutes: 3 }
-      ],
-      responseTimeline: [
-        { stage: 'INCIDENT_DETECTED', label: 'Collision Impact Detected', duration: 110, status: 'COMPLETED' },
-        { stage: 'SEVERITY_CALCULATED', label: 'Severity Classification Finalized', duration: 80, status: 'COMPLETED' },
-        { stage: 'CAD_DISPATCH', label: 'Multi-Agency Emergency Dispatches Triggered', duration: 95, status: 'COMPLETED' },
-        { stage: 'POLICE_RESPONSE_PLANNED', label: 'Police Corridor Lockdown Planned', duration: 75, status: 'COMPLETED' }
-      ],
-      preventionInsights: [
-        { id: 'INS-01', category: 'INFRASTRUCTURE', title: 'Intersection Conflict Warning', recommendation: 'Extend yellow interval and activate geofenced speed limiters.', priority: 'HIGH' }
-      ]
-    };
-    setActiveIncident(fallbackIncident);
-    setIncidentsList((prev) => [fallbackIncident, ...prev]);
-    return fallbackIncident;
+    if (!enriched) {
+      // Deterministic fallback if API fails
+      enriched = {
+        id: `INC-${Date.now().toString().slice(-6)}`,
+        incidentId: `INC-${Date.now().toString().slice(-6)}`,
+        timestamp: new Date().toISOString(),
+        location: loc,
+        status: 'ACTIVE_RESPONSE',
+        isCollision: true,
+        isPrevention: false,
+        reportReady: true,
+        severityLevel: 'CRITICAL',
+        severityScore: payload.riskAtCollision || 88,
+        severity: { level: 'CRITICAL', score: payload.riskAtCollision || 88, description: 'Critical collision conflict.' },
+        impactSpeedKmH: 48,
+        gForceB: 14.2,
+        vehicleA: payload.vehicleA,
+        vehicleB: payload.vehicleB,
+        telemetry: payload,
+        selectedHospital: initialHospital,
+        dispatches: [
+          { unitId: 'EMS-102', agency: initialHospital.name, type: 'Advanced Life Support Ambulance', status: 'DISPATCHED', etaMinutes: initialHospital.etaMinutes },
+          { unitId: 'FIRE-04', agency: 'City Fire & Heavy Rescue Dept', type: 'Heavy Extrication Fire Tender', status: 'DISPATCHED', etaMinutes: 5 },
+          { unitId: 'PATROL-P8', agency: 'Metropolitan Traffic Command', type: 'Highway Patrol Interceptor', status: 'DISPATCHED', etaMinutes: 3 }
+        ],
+        responseTimeline: [
+          { stage: 'INCIDENT_DETECTED', label: 'Collision Impact Detected', duration: 110, status: 'COMPLETED' },
+          { stage: 'SEVERITY_CALCULATED', label: 'Severity Classification Finalized', duration: 80, status: 'COMPLETED' },
+          { stage: 'CAD_DISPATCH', label: 'Multi-Agency Emergency Dispatches Triggered', duration: 95, status: 'COMPLETED' },
+          { stage: 'POLICE_RESPONSE_PLANNED', label: 'Police Corridor Lockdown Planned', duration: 75, status: 'COMPLETED' }
+        ],
+        preventionInsights: [
+          { id: 'INS-01', category: 'INFRASTRUCTURE', title: 'Intersection Conflict Warning', recommendation: 'Extend yellow interval and activate geofenced speed limiters.', priority: 'HIGH' }
+        ]
+      };
+    }
+
+    // Set up initial workflow states
+    setAssignedHospital(initialHospital);
+    const initialAmbulance = createAmbulanceDispatchRequest(enriched, initialHospital);
+    setAssignedAmbulance(initialAmbulance);
+    setPoliceStatus('NEW_INCIDENT');
+    setHospitalStatus('IDLE');
+    setAmbulanceTracking({
+      status: 'STANDBY',
+      progressPercent: 0,
+      speedKmH: 0,
+      etaMinutes: initialHospital.etaMinutes,
+      distanceRemainingKm: initialHospital.distanceKm,
+      currentLocation: `${initialHospital.name} (Emergency Bay)`,
+      currentWaypointIndex: 0
+    });
+
+    setActiveIncident(enriched);
+    setIncidentsList((prev) => [enriched, ...prev]);
+    return enriched;
   };
 
   /**
@@ -271,10 +325,12 @@ export function AppProvider({ children }) {
       if (!isCollision) {
         // Prevention Analysis Scenario (Risk < Threshold)
         const prevId = `PREV-${Date.now().toString().slice(-6)}`;
+        const loc = selectedClipData?.location || 'Chennai Central Junction';
         const preventionRecord = {
           id: prevId,
           incidentId: prevId,
           timestamp: new Date().toISOString(),
+          location: loc,
           status: 'PREVENTED',
           isCollision: false,
           isPrevention: true,
@@ -290,7 +346,7 @@ export function AppProvider({ children }) {
           gForceB: 0.1,
           vehicleA,
           vehicleB,
-          telemetry: { vehicleA, vehicleB, environment, riskAtCollision: riskScore },
+          telemetry: { vehicleA, vehicleB, environment, riskAtCollision: riskScore, location: loc },
           dispatches: [],
           responseTimeline: [
             { step: 1, label: 'Headway Distance & Approach Kinematics Evaluated', time: '0.0s', duration: 40, status: 'COMPLETED' },
@@ -332,7 +388,8 @@ export function AppProvider({ children }) {
           vehicleA,
           vehicleB,
           environment,
-          riskAtCollision: riskScore
+          riskAtCollision: riskScore,
+          location: selectedClipData?.location || 'Chennai Outer Ring Road'
         });
 
         // Auto-navigate to Incident Analysis tab
@@ -344,7 +401,112 @@ export function AppProvider({ children }) {
     } finally {
       setIsPredictionRunning(false);
     }
-  }, [collisionThreshold, recalculateRisk, vehicleA, vehicleB, environment, triggerCollisionSimulation]);
+  }, [collisionThreshold, recalculateRisk, vehicleA, vehicleB, environment, selectedClipData]);
+
+  /**
+   * Police Acknowledges Incident & Requests Hospital Dispatch
+   */
+  const acknowledgePoliceIncident = useCallback((hospital) => {
+    const hosp = hospital || assignedHospital || selectNearestSuitableHospital(activeIncident?.location);
+    const ambulanceReq = createAmbulanceDispatchRequest(activeIncident, hosp);
+
+    setAssignedHospital(hosp);
+    setAssignedAmbulance(ambulanceReq);
+    setPoliceStatus('HOSPITAL_DISPATCH_REQUESTED');
+    setHospitalStatus('INCOMING_REQUEST');
+
+    setAmbulanceTracking({
+      status: 'DISPATCH_REQUESTED',
+      progressPercent: 0,
+      speedKmH: 0,
+      etaMinutes: hosp.etaMinutes,
+      distanceRemainingKm: hosp.distanceKm,
+      currentLocation: `${hosp.name} (Emergency Bay)`,
+      currentWaypointIndex: 0
+    });
+
+    if (activeIncident) {
+      setActiveIncident((prev) => ({
+        ...prev,
+        status: 'Hospital Assigned - Ambulance Request Pending'
+      }));
+    }
+  }, [activeIncident, assignedHospital]);
+
+  /**
+   * Hospital Accepts Emergency & Dispatches Ambulance
+   * Updates status to: Hospital Assigned, Ambulance Dispatched, En Route
+   * Initiates animated route transit tracking.
+   */
+  const acceptHospitalEmergency = useCallback(() => {
+    if (!assignedHospital || !assignedAmbulance) return;
+
+    setHospitalStatus('AMBULANCE_DISPATCHED');
+    setPoliceStatus('EN_ROUTE');
+
+    const updatedIncidentStatus = 'Hospital Assigned — Ambulance Dispatched (En Route)';
+    setActiveIncident((prev) => (prev ? { ...prev, status: updatedIncidentStatus } : prev));
+
+    const waypoints = assignedHospital.waypoints || [
+      { name: `${assignedHospital.name} Bay`, progress: 0 },
+      { name: 'Arterial Corridor Expressway', progress: 30 },
+      { name: 'Flyover Interchange Approach', progress: 65 },
+      { name: `Accident Scene (${activeIncident?.location || 'Collision Site'})`, progress: 100 }
+    ];
+
+    setAmbulanceTracking((prev) => ({
+      ...prev,
+      status: 'EN_ROUTE',
+      speedKmH: 64,
+      progressPercent: 5
+    }));
+
+    if (trackingTimerRef.current) clearInterval(trackingTimerRef.current);
+
+    let progress = 5;
+    trackingTimerRef.current = setInterval(() => {
+      progress += 10;
+
+      if (progress >= 100) {
+        clearInterval(trackingTimerRef.current);
+        trackingTimerRef.current = null;
+
+        const sceneLoc = `Accident Scene (${activeIncident?.location || 'Target Site'})`;
+        setAmbulanceTracking({
+          status: 'ARRIVED_AT_SCENE',
+          progressPercent: 100,
+          speedKmH: 0,
+          etaMinutes: 0,
+          distanceRemainingKm: 0,
+          currentLocation: sceneLoc,
+          currentWaypointIndex: waypoints.length - 1
+        });
+        setPoliceStatus('PATROL_AT_SCENE');
+        setHospitalStatus('ARRIVED_AT_SCENE');
+        setActiveIncident((prev) => (prev ? { ...prev, status: 'Ambulance Arrived at Scene — Trauma Triage Active' } : prev));
+      } else {
+        const wpIdx = Math.min(
+          waypoints.length - 1,
+          Math.floor((progress / 100) * waypoints.length)
+        );
+        const currentWp = waypoints[wpIdx]?.name || 'Transit Corridor';
+        const totalEta = assignedHospital?.etaMinutes || 4;
+        const remainingEta = Math.max(0.5, Number(((totalEta * (100 - progress)) / 100).toFixed(1)));
+        const totalDist = assignedHospital?.distanceKm || 3.0;
+        const remainingDist = Math.max(0.2, Number(((totalDist * (100 - progress)) / 100).toFixed(1)));
+
+        setAmbulanceTracking({
+          status: 'EN_ROUTE',
+          progressPercent: progress,
+          speedKmH: 68 + Math.round((Math.random() - 0.5) * 6),
+          etaMinutes: remainingEta,
+          distanceRemainingKm: remainingDist,
+          currentLocation: currentWp,
+          currentWaypointIndex: wpIdx
+        });
+      }
+    }, 1800);
+  }, [assignedHospital, assignedAmbulance, activeIncident]);
 
   const updateVehicleA = (fields) => setVehicleA((prev) => ({ ...prev, ...fields }));
   const updateVehicleB = (fields) => setVehicleB((prev) => ({ ...prev, ...fields }));
@@ -396,7 +558,20 @@ export function AppProvider({ children }) {
         updateEnvironment,
         recalculateRisk,
         triggerCollisionSimulation,
-        refreshData
+        refreshData,
+        // Post-Accident Workflow & Real-Time Coordination
+        policeStatus,
+        setPoliceStatus,
+        hospitalStatus,
+        setHospitalStatus,
+        assignedHospital,
+        setAssignedHospital,
+        assignedAmbulance,
+        setAssignedAmbulance,
+        ambulanceTracking,
+        setAmbulanceTracking,
+        acknowledgePoliceIncident,
+        acceptHospitalEmergency
       }}
     >
       {children}

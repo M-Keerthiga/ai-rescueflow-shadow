@@ -32,7 +32,6 @@ export default function Sidebar() {
       items: [
         { path: '/rescue/analysis', label: 'Incident Analysis', icon: AlertOctagon },
         { path: '/rescue/history', label: 'Reported Incidents History', icon: AlertOctagon },
-        { path: '/police', label: 'Police Dashboard', icon: Shield },
         { path: '/analytics', label: 'Analytics & Heatmaps', icon: BarChart3 }
       ]
     },

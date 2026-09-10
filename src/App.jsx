@@ -13,6 +13,7 @@ import RescueFlowReport from './pages/RescueFlowReport.jsx';
 import Analytics from './pages/Analytics.jsx';
 import SettingsPage from './pages/Settings.jsx';
 import PoliceDashboard from './pages/PoliceDashboard.jsx';
+import HospitalDashboard from './pages/HospitalDashboard.jsx';
 
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
 
@@ -36,7 +37,9 @@ export default function App() {
                     <Route path="/shadow/what-if" element={<AIShadowWhatIf />} />
                     <Route path="/rescue/analysis" element={<RescueFlowAnalysis />} />
                     <Route path="/rescue/history" element={<RescueFlowReport />} />
+                    <Route path="/police-dashboard" element={<PoliceDashboard />} />
                     <Route path="/police" element={<PoliceDashboard />} />
+                    <Route path="/hospital-dashboard" element={<HospitalDashboard />} />
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/settings" element={<SettingsPage />} />
                     <Route path="*" element={<CommandCenter />} />
